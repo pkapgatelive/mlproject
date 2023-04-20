@@ -1,5 +1,11 @@
-import os
 import sys
+  
+# adding src to the system path
+sys.path.insert(0, '/home/USERNAME/PATH/TO/src')
+  
+#from src import something
+import os
+ 
 from src.exception import CustomeException
 from src.logger import logging
 import pandas as pd
@@ -41,3 +47,7 @@ class DataIngestion:
         
         except Exception as e:
             raise CustomeException(e, sys)
+
+if __name__ == "__main__":
+    obj = DataIngestion()
+    obj.initiate_data_ingestion()
