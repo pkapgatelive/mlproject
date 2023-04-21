@@ -1,7 +1,7 @@
-import os
 import sys
 # adding src to the system path
 sys.path.insert(0, '/home/USERNAME/PATH/TO/src')
+import os
 
 from dataclasses import dataclass
 
@@ -14,6 +14,7 @@ from sklearn.preprocessing import OneHotEncoder, StandardScaler
 
 from src.exception import CustomeException
 from src.logger import logging
+from src.utils import save_object
 
 @dataclass
 class DataTransformationConfig:
@@ -36,16 +37,16 @@ class DataTransformation:
             
             num_pipeline = Pipeline(
                 steps= [
-                ("imputer",SimpleImputer(strategy="medium")),
-                ("scaler", StandardScaler())
+                ("imputer",SimpleImputer(strategy="median")),
+                ("scaler", StandardScaler(with_mean=False))
                 ])
             
             cat_pipeline = Pipeline(
 
                 steps= [
-                ("imputer", SimpleImputer(strategy="most_frequent"))
+                ("imputer", SimpleImputer(strategy="most_frequent")),
                 ("one_hot_encoder", OneHotEncoder()),
-                ('scaler', StandardScaler())
+                ('scaler', StandardScaler(with_mean=False))
                 ])
             
             logging.info("numerical columns standad scaling completed") 
@@ -85,12 +86,18 @@ class DataTransformation:
             )
 
             input_features_train_arr = preprocessing_obj.fit_transform(input_features_train_df)
-            input_feature_test_arr = preprocessing_obj.transform(input_features_train_df)
+            input_feature_test_arr = preprocessing_obj.transform(input_features_test_df)
 
             train_arr = np.c_[input_features_train_arr, np.array(target_feature_train_df)]
             test_arr = np.c_[input_feature_test_arr, np.array(target_feature_test_df)]
 
             logging.info(f"saved preprocessing object.")
+
+            save_object(
+
+                file_path = self.data_transformation_config.preprocessor_obj_file_path,
+                obj = preprocessing_obj
+            )
 
             return(
                 train_arr,
